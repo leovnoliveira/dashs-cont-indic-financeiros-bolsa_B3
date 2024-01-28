@@ -4,7 +4,7 @@
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://packagemanager.rstudio.com/cran/2023-11-15/src/contrib/PACKAGES"
+        "URL": "https://packagemanager.rstudio.com/cran/2023-11-15"
       }
     ]
   },
