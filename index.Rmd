@@ -1,0 +1,387 @@
+---
+title: "Dashboard de Indicadores e Demonstrativos Financeiros"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    css: styles (1).css
+    social: menu
+    navbar:
+        - { icon: "fa-linkedin", href: "https://www.linkedin.com/in/leonardo-oliveira-334612150/", align: right }
+        - { icon: "fa-at", href: "mailto:consultoria1.ceo@gmail.com", align: right }
+runtime: shiny2
+---
+
+<script>
+$('.navbar-logo').wrap('<a href="github.com/leovnoliveira" target=_blank>');
+</script>
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(shiny)
+library(dplyr)
+library(echarts4r)
+library(tidyr)
+library(flextable)
+```
+
+
+```{r dados}
+load("dados.Rdata", envir = .GlobalEnv)
+```
+
+
+Demonstrativos {data-icon="fa-signal"}
+=====================================
+
+Row {.sidebar data-width="200"}
+-----------------------------------------
+
+```{r sidebar}
+shiny::selectInput(
+  inputId = "companies",
+  label = "Selecione as companhias disponíveis",
+  choices = c(names_companies),
+  multiple = FALSE,
+  selectize = TRUE,
+  selected = "VALE S.A."
+)
+```
+
+Row
+--------------------------------------
+
+### Balanço Patrimonial
+
+```{r}
+renderEcharts4r({
+  bp |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+  echarts4r::e_charts(x = dt_refer) |> 
+  echarts4r::e_line(ativo_total, name = "Ativos") |> 
+  echarts4r::e_line(passivo, name = "Passivos") |> 
+  echarts4r::e_bar(ativo_circulante, name = "Ativo Circulante") |> 
+  echarts4r::e_bar(ativo_nao_circulante, name = "Ativo Não Circulante") |>
+  echarts4r::e_bar(passivo_circulante, name = "Passivo Circulante") |> 
+  echarts4r::e_bar(passivo_nao_circulante, name = "Passivo não Circulante") |> 
+  echarts4r::e_bar(patrimonio_liquido_consolidado, name = "Patrimônio Líquido") |> 
+  echarts4r::e_title("Balanço Patrimonial", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+  echarts4r::e_legend(right = 0) |> 
+  echarts4r::e_theme("auritus") |> 
+  echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+Row
+--------------------------------------
+
+### DRE
+
+```{r dre}
+echarts4r::renderEcharts4r({
+dre |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+  echarts4r::e_charts(x = dt_refer) |> 
+  echarts4r::e_bar(receita_de_venda_de_bens_e_ou_servicos, name = "Receita", stack = "grp") |> 
+  echarts4r::e_bar(custo_dos_bens_e_ou_servicos_vendidos, name = "Custo", stack = "grp") |> 
+  echarts4r::e_line(lucro_prejuizo_consolidado_do_periodo, name = "Lucro/Prejuizo") |> 
+  echarts4r::e_title("DRE", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+  echarts4r::e_legend(right = 0) |> 
+  echarts4r::e_theme("auritus") |> 
+  echarts4r::e_tooltip(trigger = "axis") 
+})
+```
+
+### DFC
+
+```{r}
+# Realiza o tratamento do DFC após filtrar a companhia
+new_dfc <- shiny::reactive({
+  dfc |>
+  dplyr::filter(denom_cia == input$companies) |>
+  dplyr::mutate(Ano = lubridate::year(dt_refer) |> as.character()) |>
+  dplyr::select(-denom_cia, -dt_refer) |>
+  dplyr::relocate(Ano, .before = caixa_liquido_atividades_operacionais) |> 
+  dplyr::slice_tail(n = 6) |> 
+  dplyr::rename(
+    "Operacionais" = caixa_liquido_atividades_operacionais,
+    "Investimento" = caixa_liquido_atividades_de_investimento,
+    "Financiamento" = caixa_liquido_atividades_de_financiamento,
+    "Aumento/Redução de Caixa" = aumento_reducao_de_caixa_e_equivalentes,
+    "Saldo Inicial" = saldo_inicial_de_caixa_e_equivalentes,
+    "Saldo Final" = saldo_final_de_caixa_e_equivalentes
+  )
+})
+  
+  
+shiny::renderUI({
+  new_dfc() |>
+  flextable::flextable() |> 
+  flextable::color(part = "footer", color = "#666666") |> 
+  flextable::colformat_double(j = 2:length(colnames(new_dfc())), digits = 2) %>% 
+  flextable::bg(
+    j = 2:length(colnames(new_dfc())),
+    bg = scales::col_numeric(
+      palette = colorspace::diverge_hcl(n = 20, palette = "Blue-Red 2"),
+      reverse = TRUE,
+      domain = c(-max(abs(new_dfc()[2:length(colnames(new_dfc()))])),
+                 max(abs(new_dfc()[2:length(colnames(new_dfc()))])))
+    ),
+    part = "body"
+  ) %>% 
+  flextable::theme_vanilla() %>% 
+  flextable::width(width = .43) |>
+  flextable::htmltools_value()
+})
+```
+
+
+Indicadores {data-icon="fa-signal"}
+=====================================
+
+Row {.tabset}
+------------------------------------
+
+### Liquidez Corrente
+
+```{r}
+
+avg <- list(
+    type = "average",
+    name = "AVG"
+  )
+
+echarts4r::renderEcharts4r({
+  indic_liq |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(liquidez_corrente, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("Liquidez Corrente", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+### Liquidez Imediata
+
+```{r}
+renderEcharts4r({
+  indic_liq |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(liquidez_imediata, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("Liquidez Imediata", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+### Liquidez Seca
+
+```{r}
+renderEcharts4r({
+  indic_liq |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(liquidez_seca, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("Liquidez Seca", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+### Liquidez Geral
+
+```{r}
+
+renderEcharts4r({
+  indic_liq |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(liquidez_geral, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("Liquidez Geral", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+Row {.tabset}
+------------------------------------
+
+### Divida/PL
+
+```{r}
+renderEcharts4r({
+  indic_end |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(divida_pl, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("Divida/PL", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+### Divida/Ativos
+
+```{r}
+renderEcharts4r({
+  indic_end |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(divida_ativos, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("Divida/Ativos", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+### Divida/EBIT
+
+```{r}
+renderEcharts4r({
+  indic_end |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(divida_ebit, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("Divida/EBIT", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+### PL/Ativos
+
+```{r}
+renderEcharts4r({
+  indic_end |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(pl_ativos, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("PL/Ativos", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+### Passivos/Ativos
+
+```{r}
+renderEcharts4r({
+  indic_end |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(passivos_ativos, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("Passivos/Ativos", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+Indicadores {data-icon="fa-signal"}
+=====================================
+
+Row {.tabset}
+------------------------------------
+
+### Margem Bruta
+
+```{r}
+renderEcharts4r({
+  indic_enf |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(margem_bruta, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("Margem Bruta", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+### Margem Líquida
+
+```{r}
+renderEcharts4r({
+  indic_enf |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(margem_liquida, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("Margem Líquida", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+### Margem EBIT
+
+```{r}
+renderEcharts4r({
+  indic_enf |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(margem_ebit, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("Margem EBIT", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+Row {.tabset}
+------------------------------------
+
+### ROIC
+
+```{r}
+renderEcharts4r({
+  indic_rent |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(roic, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("ROIC", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+### ROE
+
+```{r}
+renderEcharts4r({
+  indic_rent |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(roe, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("ROE", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
+
+### ROA
+
+```{r}
+renderEcharts4r({
+  indic_rent |> 
+  dplyr::filter(denom_cia == input$companies) |> 
+    echarts4r::e_charts(x = dt_refer) |> 
+    echarts4r::e_line(roa, legend = FALSE) |> 
+    echarts4r::e_mark_line(data = avg, title = "Média") |> 
+    echarts4r::e_title("ROA", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_theme("auritus") |> 
+    echarts4r::e_tooltip(trigger = "axis")
+})
+```
