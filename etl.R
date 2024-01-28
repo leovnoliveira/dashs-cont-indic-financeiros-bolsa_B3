@@ -10,7 +10,7 @@ library(tidyr)
 library(rlang)
 
 # Define o diretório dos arquivos baixados
-cache_folder = "cache_folder_shiny"
+cache_folder = "cache_folder_shiny2"
 
 # Código CVM das empresas ativas
 info_companies <- GetDFPData2::get_info_companies(cache_folder = cache_folder)
