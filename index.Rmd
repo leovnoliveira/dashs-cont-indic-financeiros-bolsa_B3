@@ -65,7 +65,7 @@ renderEcharts4r({
   echarts4r::e_bar(passivo_circulante, name = "Passivo Circulante") |> 
   echarts4r::e_bar(passivo_nao_circulante, name = "Passivo não Circulante") |> 
   echarts4r::e_bar(patrimonio_liquido_consolidado, name = "Patrimônio Líquido") |> 
-  echarts4r::e_title("Balanço Patrimonial", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+  echarts4r::e_title("Balanço Patrimonial", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
   echarts4r::e_legend(right = 0) |> 
   echarts4r::e_theme("auritus") |> 
   echarts4r::e_tooltip(trigger = "axis")
@@ -85,7 +85,7 @@ dre |>
   echarts4r::e_bar(receita_de_venda_de_bens_e_ou_servicos, name = "Receita", stack = "grp") |> 
   echarts4r::e_bar(custo_dos_bens_e_ou_servicos_vendidos, name = "Custo", stack = "grp") |> 
   echarts4r::e_line(lucro_prejuizo_consolidado_do_periodo, name = "Lucro/Prejuizo") |> 
-  echarts4r::e_title("DRE", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+  echarts4r::e_title("DRE", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
   echarts4r::e_legend(right = 0) |> 
   echarts4r::e_theme("auritus") |> 
   echarts4r::e_tooltip(trigger = "axis") 
@@ -157,7 +157,7 @@ echarts4r::renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(liquidez_corrente, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("Liquidez Corrente", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("Liquidez Corrente", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -172,7 +172,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(liquidez_imediata, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("Liquidez Imediata", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("Liquidez Imediata", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -187,7 +187,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(liquidez_seca, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("Liquidez Seca", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("Liquidez Seca", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -203,7 +203,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(liquidez_geral, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("Liquidez Geral", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("Liquidez Geral", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -221,7 +221,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(divida_pl, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("Divida/PL", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("Divida/PL", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -236,7 +236,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(divida_ativos, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("Divida/Ativos", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("Divida/Ativos", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -251,7 +251,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(divida_ebit, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("Divida/EBIT", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("Divida/EBIT", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -266,7 +266,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(pl_ativos, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("PL/Ativos", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("PL/Ativos", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -281,7 +281,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(passivos_ativos, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("Passivos/Ativos", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("Passivos/Ativos", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -302,7 +302,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(margem_bruta, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("Margem Bruta", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("Margem Bruta", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -317,7 +317,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(margem_liquida, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("Margem Líquida", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("Margem Líquida", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -332,7 +332,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(margem_ebit, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("Margem EBIT", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("Margem EBIT", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -350,7 +350,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(roic, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("ROIC", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("ROIC", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -365,7 +365,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(roe, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("ROE", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("ROE", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -380,7 +380,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(roa, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("ROA", "Fonte: CVM/B3 | Elaborado por analisemacro.com.br") |> 
+    echarts4r::e_title("ROA", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
