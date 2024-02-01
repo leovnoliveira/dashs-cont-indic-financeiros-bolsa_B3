@@ -332,7 +332,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(margem_ebit, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("Margem EBIT", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
+    echarts4r::e_title("Margem EBIT", "Fonte: CVM/B3 | Elaboração própria") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -350,7 +350,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(roic, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("ROIC", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
+    echarts4r::e_title("ROIC", "Fonte: CVM/B3 | Elaboração própria") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -365,7 +365,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(roe, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("ROE", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
+    echarts4r::e_title("ROE", "Fonte: CVM/B3 | Elaboração própria") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
@@ -380,7 +380,7 @@ renderEcharts4r({
     echarts4r::e_charts(x = dt_refer) |> 
     echarts4r::e_line(roa, legend = FALSE) |> 
     echarts4r::e_mark_line(data = avg, title = "Média") |> 
-    echarts4r::e_title("ROA", "Fonte: CVM/B3 | Elaborado por Leonardo Oliveira") |> 
+    echarts4r::e_title("ROA", "Fonte: CVM/B3 | Elaboração própria") |> 
     echarts4r::e_theme("auritus") |> 
     echarts4r::e_tooltip(trigger = "axis")
 })
