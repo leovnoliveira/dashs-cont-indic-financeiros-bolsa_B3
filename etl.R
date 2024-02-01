@@ -210,8 +210,11 @@ indic_rent <- df_dfp |>
   dplyr::ungroup()
 
 # Salva os dados em um arquivo .Rdata
+# Use para remover objetos pesados do enviroment e não utilizado no Dashboard
+rm(l_dfp)
+rm(df_dfp)
 save(
-  list  = ls(),
-  file  = file.path("dados.Rdata"),
+  list = ls(),
+  file = file.path("dados.Rdata"),
   envir = environment()
 )
