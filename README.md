@@ -1,4 +1,4 @@
-# DashsDaBolsa
+# Dashs da Bolsa
 
 Link para visualizar gráficos interativos dos indicadores financeiros e contas contábeis das empresas da Bolsa (B3):
 
