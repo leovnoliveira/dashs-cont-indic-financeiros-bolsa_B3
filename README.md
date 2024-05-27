@@ -1,5 +1,3 @@
 # Dashs da Bolsa
 
-Link para visualizar gráficos interativos dos indicadores financeiros e contas contábeis das empresas da Bolsa (B3):
-
- https://leovnoliveira.shinyapps.io/dashsdabolsa/
+Visualização do Painel de dados de demonstartivos contábeis e indicadores financeiros das empresas da listadas na Bolsa de Valores (B3) disponível [aqui](https://leovnoliveira.shinyapps.io/dashsdabolsa/)
