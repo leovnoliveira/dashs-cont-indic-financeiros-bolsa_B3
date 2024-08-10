@@ -60,6 +60,14 @@ O aplicativo está disponível publicamente e pode ser acessado no seguinte link
 
 Contribuições para o desenvolvimento e aprimoramento deste aplicativo são bem-vindas. Sinta-se à vontade para abrir issues ou enviar pull requests.
 
+## Como contribuir?
+
+1. Faça um fork do projeto.
+2. Realize o clone do projeto através do `git clone <link_do_fork_do_repositorio>`
+3. Crie uma nova branch com as suas alterações: <git checkout -b minha-branch>
+4. Salve as alterações e crie uma mensagem de commit contando o que você fez: <git commit -m "feature: Minha contribuição">
+5. Envie as suas alterações: <git push origin minha-branch>
+
 ## Licença
 
 Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
