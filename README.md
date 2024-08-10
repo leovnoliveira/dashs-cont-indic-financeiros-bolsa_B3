@@ -2,10 +2,11 @@
 
 Este repositório contém um aplicativo desenvolvido em [Shiny](https://shiny.rstudio.com/), que apresenta os demonstrativos contábeis e o Balanço Patrimonial de todas as empresas listadas na bolsa de valores brasileira (B3). O aplicativo foi desenvolvido utilizando a linguagem R e pode ser acessado [aqui](https://leovnoliveira.shinyapps.io/dashsdabolsa/).
 
-## Funcionalidades
+### Funcionalidades
 
 - **Visualização de Demonstrativos Contábeis**: Acesse e visualize os demonstrativos financeiros de todas as empresas da B3.
-- **Balanço Patrimonial**: Visualize o balanço patrimonial das empresas de forma clara e interativa.
+- **Balanço Patrimonial**: Acesse os Balanços Patrimoniais Ativo (BPA) e Passivo (BPP) das empresas, apresentados de forma clara e interativa.
+- **Indicadores Financeiros**: Consulte indicadores de liquidez (Liquidez Corrente, Liq. Imediata, Liq. Seca, Liq. Geral), de endividamento (Dívida/PL, Dívida/Ativos, Dívida/EBIT, PL/Ativos, Passivos/Ativos) de margem (Margem Bruta, Margem Líquida, Margem EBIT) e de rentabilidade (ROIC, ROE, ROA).
 - **Atualização Automática**: Os dados são atualizados automaticamente por meio de um workflow configurado no GitHub Actions.
 
 ## Dados
