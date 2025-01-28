@@ -31,6 +31,11 @@ jobs:
           key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
           restore-keys: |
             ${{ runner.os }}-renv-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libharfbuzz-dev libfribidi-dev
             
       - name: Restore packages
         run: |
@@ -40,7 +45,7 @@ jobs:
 
       - name: Install workflow dependencies
         run: |
-          install.packages(c("rcmdcheck", "sessioninfo", "devtools", "rsconnect"))
+          install.packages(c("rcmdcheck", "sessioninfo", "devtools", "rsconnect", "systemfonts"))
         shell: Rscript {0}
    
       - name: Update data
