@@ -1,6 +1,7 @@
 # -----------------------------------------------------------------
 # Script de Coleta e tratamento dos dados demonstrativos financeiros
 
+
 library(GetDFPData2)
 library(dplyr)
 library(lubridate)
@@ -50,23 +51,43 @@ df_dfp <- l_dfp |>
   rlang::set_names(type_docs) |> 
   dplyr::bind_rows(.id = "label") |>
   dplyr::select(label, DT_REFER, DENOM_CIA, ESCALA_MOEDA, CD_CONTA, DS_CONTA, VL_CONTA) |> 
-  janitor::clean_names()
+  janitor::clean_names() |>
+
+
+
+df_dfp <- df_dfp |>
+  tidyr::pivot_wider(
+    values_from = vl_conta,
+    names_from = c(cd_conta),
+    id_cols = c(label, denom_cia, dt_refer, escala_moeda, ds_conta),
+    values_fn = list(vl_conta = mean)
+  )
+
+  # Transformar colunas numéricas corretamente
+df_dfp <- df_dfp |> 
+  dplyr::mutate(across(where(is.list), ~ as.numeric(unlist(.)), .names = "num_{.col}"))
+
+  print(names(df_dfp))
 
 # BP -----------------------------------------------
 bp <- df_dfp |> 
   dplyr::filter(ds_conta %in% c("Ativo Total",
-                               "Passivo Total",
-                               "Patrimônio Líquido Consolidado",
-                               "Ativo Circulante",
-                               "Ativo Não Circulante",
-                               "Passivo Circulante",
-                               "Passivo Não Circulante")
-         & cd_conta %in% c("1", "2", "1.01", "1.02", "2.01", "2.02", "2.03")) |>
-  tidyr::pivot_wider(values_from = vl_conta,
-              names_from = c(ds_conta),
-              -c(label, cd_conta, escala_moeda)) |> 
-  janitor::clean_names() |> 
-  dplyr::mutate(passivo = passivo_total - patrimonio_liquido_consolidado)
+                                "Passivo Total",
+                                "Patrimônio Líquido Consolidado",
+                                "Ativo Circulante",
+                                "Ativo Não Circulante",
+                                "Passivo Circulante",
+                                "Passivo Não Circulante") &
+                cd_conta %in% c("1", "2", "1.01", "1.02", "2.01", "2.02", "2.03")) |>
+  tidyr::pivot_wider(
+    values_from = vl_conta,
+    names_from = c(ds_conta),
+    id_cols = c(label, dt_refer, denom_cia, escala_moeda, cd_conta),
+    values_fn = list(vl_conta = mean) # Usa a média para consolidar valores duplicados
+  ) |> 
+  janitor::clean_names()
+
+
 
 
 # DRE -----------------------------------------------
@@ -77,24 +98,26 @@ dre <- df_dfp |>
          & cd_conta %in% c("3.11", "3.01", "3.02")) |>
   tidyr::pivot_wider(values_from = vl_conta,
               names_from = c(ds_conta),
-              -c(label, cd_conta, escala_moeda)) |> 
+              id_cols = c(label, denom_cia, dt_refer, escala_moeda)) |> 
   janitor::clean_names()
 
 # DFC ------------------------------------------------
 dfc <- df_dfp |> 
   dplyr::filter(ds_conta %in% c("Caixa Líquido Atividades Operacionais",
-                               "Caixa Líquido Atividades de Investimento",
-                               "Caixa Líquido Atividades de Financiamento",
-                               "Aumento (Redução) de Caixa e Equivalentes",
-                               "Saldo Inicial de Caixa e Equivalentes",
-                               "Saldo Final de Caixa e Equivalentes"
-                         )
-  & cd_conta %in% c("6.01", "6.02", "6.03", "6.04", "6.05", "6.05.01", "6.05.02")) |>
-  tidyr::pivot_wider(values_from = vl_conta,
-              names_from = c(ds_conta),
-              -c(label, cd_conta, escala_moeda)
-              ) |> 
+                                "Caixa Líquido Atividades de Investimento",
+                                "Caixa Líquido Atividades de Financiamento",
+                                "Aumento (Redução) de Caixa e Equivalentes",
+                                "Saldo Inicial de Caixa e Equivalentes",
+                                "Saldo Final de Caixa e Equivalentes") &
+                cd_conta %in% c("6.01", "6.02", "6.03", "6.04", "6.05", "6.05.01", "6.05.02")) |> 
+  tidyr::pivot_wider(
+    names_from = ds_conta,         # Define os nomes das colunas
+    values_from = vl_conta,        # Define os valores das colunas
+    id_cols = c(label, denom_cia, dt_refer, escala_moeda),
+    values_fn = list(vl_conta = mean) # Consolida valores duplicados
+  ) |> 
   janitor::clean_names()
+
 
 
 # Cria os indicadores --------------------------------
@@ -102,83 +125,104 @@ dfc <- df_dfp |>
 ## Indicadores de Liquidez ---------------------------
 indic_liq <- df_dfp |> 
   dplyr::filter(ds_conta %in% c("Ativo Circulante",
-                                 "Ativo Não Circulante",
-                                 "Passivo Circulante",
-                                 "Passivo Não Circulante",
-                                 "Caixa e Equivalentes de Caixa",
-                                 "Estoques",
-                                 "Despesas Antecipadas"
-                         ) & cd_conta %in%
-                        c("1.01.01", # Caixa
-                          "2.01",    # Passivo Circulante
-                          "1.01",    # Ativo Circulante
-                          "1.01.04", # Estoques
-                          "1.01.07", # Despesas Antecipadas
-                          "1.02",    # Ativo não circulante
-                          "2.02"    # Passivo não circulante 
-                         ) 
-         ) |> 
-  tidyr::pivot_wider(values_from = vl_conta,
-              names_from = c(ds_conta),
-              -c(label, cd_conta)) |>
+                                "Ativo Não Circulante",
+                                "Passivo Circulante",
+                                "Passivo Não Circulante",
+                                "Caixa e Equivalentes de Caixa",
+                                "Estoques",
+                                "Despesas Antecipadas") & 
+                cd_conta %in% c("1.01.01", "2.01", "1.01", "1.01.04", "1.01.07", "1.02", "2.02")) |>
+  tidyr::pivot_wider(
+    values_from = vl_conta,
+    names_from = c(ds_conta),
+    id_cols = c(label, denom_cia, dt_refer, escala_moeda),
+    values_fn = list(vl_conta = mean)
+  ) |> 
   janitor::clean_names() |> 
-  dplyr::group_by(denom_cia, dt_refer) |>  
-  dplyr::transmute(liquidez_imediata = `caixa_e_equivalentes_de_caixa` / `passivo_circulante`, 
-                   liquidez_seca = (`ativo_circulante` -  `estoques` - `despesas_antecipadas`) / `passivo_circulante`,
-                   liquidez_corrente = `ativo_circulante` / `passivo_circulante`,
-                   liquidez_geral = (`ativo_circulante` + `ativo_nao_circulante`) / (`passivo_circulante` + `passivo_nao_circulante`)
-                   ) |> 
+  dplyr::mutate(across(
+    c(caixa_e_equivalentes_de_caixa, passivo_circulante, ativo_circulante, estoques, 
+      despesas_antecipadas, ativo_nao_circulante, passivo_nao_circulante), 
+    ~ as.numeric(.), 
+    .names = "num_{.col}"
+  )) |> 
+  dplyr::mutate(
+    liquidez_imediata = num_caixa_e_equivalentes_de_caixa / num_passivo_circulante,
+    liquidez_seca = (num_ativo_circulante - num_estoques - num_despesas_antecipadas) / num_passivo_circulante,
+    liquidez_corrente = num_ativo_circulante / num_passivo_circulante,
+    liquidez_geral = (num_ativo_circulante + num_ativo_nao_circulante) / (num_passivo_circulante + num_passivo_nao_circulante)
+  ) |> 
   dplyr::ungroup() |> 
   dplyr::arrange(denom_cia)
 
+
 ## Indicadores de Endividamento -------------------------------------
-indic_end <- 
-  df_dfp |> 
-  dplyr::filter(cd_conta %in% c("1", # Ativo Total
-                                "2.01", # Passivo Circulante
-                                "2.02", # Passivo não circulante
-                                "2.01.04", # Empréstimos e Financiamento de CP
-                                "2.02.01", # Empréstimos e Financiamento de LP
-                                "2.03", # Patrimônio Líquido
-                                "3.05" # EBIT
-  )
+indic_end <- df_dfp |> 
+  dplyr::filter(cd_conta %in% c("1", "2.01", "2.02", "2.01.04", "2.02.01", "2.03", "3.05")) |> 
+  tidyr::pivot_wider(
+    values_from = vl_conta,
+    names_from = c(cd_conta),
+    id_cols = c(label, denom_cia, dt_refer, escala_moeda),
+    values_fn = list(vl_conta = mean) # Consolida valores duplicados
   ) |> 
-  tidyr::pivot_wider(values_from = vl_conta,
-              names_from = c(cd_conta),
-              -c(label, ds_conta, escala_moeda)) |> 
+  janitor::clean_names() |> 
+  dplyr::mutate(across(
+    starts_with("x"), 
+    ~ as.numeric(.), 
+    .names = "num_{.col}" # Converte para numérico
+  )) |> 
+  dplyr::mutate(
+    across(
+      starts_with("num_"),
+      ~ ifelse(is.na(.), 0, .) # Substitui NA por 0
+    )
+  ) |> 
   dplyr::group_by(denom_cia, dt_refer) |> 
-  dplyr::transmute(divida_pl = (`2.01.04` + `2.02.01`)/ `2.03`,
-                   divida_ativos = (`2.01.04` + `2.02.01`) / `1`,
-                   divida_ebit = (`2.01.04` + `2.02.01`) / `3.05`,
-                   pl_ativos = `2.03` / `1`,
-                   passivos_ativos =   (`2.01` + `2.02`) / `1`) |> 
+  dplyr::transmute(
+    divida_pl = (num_x2_01_04 + num_x2_02_01) / num_x2_03,
+    divida_ativos = (num_x2_01_04 + num_x2_02_01) / num_x1,
+    divida_ebit = (num_x2_01_04 + num_x2_02_01) / num_x3_05,
+    pl_ativos = num_x2_03 / num_x1,
+    passivos_ativos = (num_x2_01 + num_x2_02) / num_x1
+  ) |> 
   dplyr::ungroup()
 
+
 ## Indicadores de Eficiência --------------------------------------
-indic_enf <- 
-  df_dfp |>
+indic_enf <- df_dfp |> 
   dplyr::filter(ds_conta %in% c("Receita de Venda de Bens e/ou Serviços",
                                 "Resultado Bruto",
                                 "Resultado Antes do Resultado Financeiro e dos Tributos",
                                 "Resultado antes dos Tributos sobre o Lucro",
                                 "Lucro ou Prejuízo Líquido Consolidado do Período",
-                                "Lucro/Prejuízo Consolidado do Período"
-                                ) &
-    cd_conta %in% c("3.01", # Receita de Venda de Bens e/ou Serviços
-                    "3.03", # Resultado Bruto
-                    "3.05", # EBIT
-                    "3.11"  # Lucro/Prejuízo Consolidado do Período
-  )
+                                "Lucro/Prejuízo Consolidado do Período") &
+                cd_conta %in% c("3.01", "3.03", "3.05", "3.11")) |> 
+  tidyr::pivot_wider(
+    values_from = vl_conta,
+    names_from = c(cd_conta),
+    id_cols = c(label, denom_cia, dt_refer, escala_moeda),
+    values_fn = list(vl_conta = mean) # Consolida duplicatas
   ) |> 
-  tidyr::pivot_wider(values_from = vl_conta,
-              names_from = c(cd_conta),
-                -c(label, ds_conta, escala_moeda)) |> 
+  janitor::clean_names() |> 
+  dplyr::mutate(across(
+    starts_with("x"), 
+    ~ as.numeric(.), # Converte para numérico
+    .names = "num_{.col}"
+  )) |> 
+  dplyr::mutate(
+    across(
+      starts_with("num_"),
+      ~ ifelse(is.na(.), 0, .) # Substitui NA por 0
+    )
+  ) |> 
   dplyr::group_by(denom_cia, dt_refer) |> 
-  dplyr::transmute(margem_bruta = `3.03` / `3.01`,
-                   margem_liquida = `3.11` / `3.01`,
-                   margem_ebit =  `3.05` / `3.01`
-                   ) |> 
+  dplyr::transmute(
+    margem_bruta = num_x3_03 / num_x3_01,
+    margem_liquida = num_x3_11 / num_x3_01,
+    margem_ebit = num_x3_05 / num_x3_01
+  ) |> 
   dplyr::ungroup()
+
+
 
 ## Indicadores de Rentabilidade --------------------------------------
 indic_rent <- df_dfp |> 
@@ -190,24 +234,34 @@ indic_rent <- df_dfp |>
                                 "Lucro ou Prejuízo Líquido Consolidado do Período",
                                 "Lucro/Prejuízo Consolidado do Período",
                                 "Patrimônio Líquido Consolidado") &
-                cd_conta %in% c("1", # Ativo Total 
-                                "2", # Passivo total
-                                "2.03", # Patrimônio Líquido
-                                "3.05", # EBIT
-                                "3.08", # Imposto de Renda e Contribuição Social sobre o Lucro
-                                "3.11"  # Lucro/Prejuízo Consolidado do Período
-                )
-  )|> 
-  tidyr::pivot_wider(values_from = vl_conta,
-              names_from = c(cd_conta),
-              -c(label, ds_conta, escala_moeda)) |> 
+                cd_conta %in% c("1", "2", "2.03", "3.05", "3.08", "3.11")) |> 
+  tidyr::pivot_wider(
+    values_from = vl_conta,
+    names_from = c(cd_conta),
+    id_cols = c(label, denom_cia, dt_refer, escala_moeda),
+    values_fn = list(vl_conta = mean) # Consolida valores duplicados
+  ) |> 
+  janitor::clean_names() |> 
+  dplyr::mutate(across(
+    starts_with("x"), 
+    ~ as.numeric(.), # Converte para numérico
+    .names = "num_{.col}"
+  )) |> 
+  dplyr::mutate(
+    across(
+      starts_with("num_"),
+      ~ ifelse(is.na(.), 0, .) # Substitui NA por 0
+    )
+  ) |> 
   dplyr::group_by(denom_cia, dt_refer) |> 
   dplyr::transmute(
-                roic = (`3.05` - `3.08`) / (`2`),
-                roe = (`3.11`) / (`2.03`),
-                roa = (`3.11`) / (`1`)
-                )|> 
+    roic = (num_x3_05 - num_x3_08) / num_x2,   # (EBIT - Impostos) / Passivo Total
+    roe = num_x3_11 / num_x2_03,               # Lucro Líquido / Patrimônio Líquido
+    roa = num_x3_11 / num_x1                   # Lucro Líquido / Ativo Total
+  ) |> 
   dplyr::ungroup()
+
+
 
 # Salva os dados em um arquivo .Rdata
 # Use para remover objetos pesados do enviroment e não utilizado no Dashboard
